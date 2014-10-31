@@ -1,6 +1,7 @@
 ﻿package tests
 {
 	// adobe
+	import com.kiko.ui.BoxConfig;
 	import com.kiko.ui.buttons.IconButton;
 	import com.kiko.ui.buttons.TextButton;
 	import com.kiko.ui.buttons.TextButton;
@@ -51,6 +52,8 @@
 
 		private function createBox():Box {
 			
+			var config:BoxConfig = new BoxConfig();
+			
 			var box:Box = new Box();
 			addChild(box);
 			box.x = Math.random()* 500;
@@ -66,10 +69,20 @@
 			//box.addStepper("Super Test: 24", 0, 5, 2, 1);
 			//box.addTextButton("Text Button Size");
 			
-			/**
+			
+			if ( 1 ) {
+			makeFor( 10, function() { 
+				var s:Sprite = new Sprite();
+				s.graphics.beginFill(Math.random() * 0xffffff);
+				s.graphics.drawRect(0, 0, Math.random() * 150, 30);
+				box.addContent( s);
+			} );
+			}
+			
+			/** 
 			 * TextButtons mit mehrerern Farben.
 			 */
-			if( 1 ){
+			if( 0 ){
 			box.addTextButton("Create Box").addEventListener(MouseEvent.CLICK, function() {
 				createBox();
 			});
