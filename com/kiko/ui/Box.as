@@ -1,11 +1,10 @@
 ﻿package com.kiko.ui
 {
 	/**
-	 * Box - Version 1.07
+	 * Box - Version 1.08
 	 * 
 	 * @todo
-	 * - alle listeners mit weakReference versehen
-	 * - schnelle dispose funktion
+	 * - restliche listeners mit anonymen funktionen entfernen
 	 * - BoxManager der die active boxes verwaltet.
 	 */
 	// adobe
@@ -62,12 +61,16 @@
 		private var config:BoxConfig;
 		private var contentElements:Number = 0;
 		private var contentHeight:Number = 0;
-		private var elementGap:Number = 8;
 		private var _color:uint;
 		private var resize_area:Number = 5; // std:5
 		private var positions:Positions = new Positions();
 		//
 		//
+		/**
+		 * Erstellt eine UI-Box
+		 * Beachte das resizing nur funktioniert, wenn die Box "active = true" besitzt.
+		 * @param config - Eine Konfigurationsklasse,  die Einstellungen zulässt wie: grössen, buttons, farben 
+		 */
 		public function Box(config:BoxConfig = null ):void {
 			if (!config) config = new BoxConfig();
 			this.config = config;
@@ -92,7 +95,7 @@
 			grabber.graphics.lineStyle(1, 0xdedede, 1, false, LineScaleMode.NONE );
 			grabber.graphics.drawRect(0, 0, config.startWidth, config.grabberHeight);
 			addChild(grabber);
-			grabber.addEventListener(MouseEvent.MOUSE_DOWN, function drag2(e:MouseEvent) {
+			grabber.addEventListener(MouseEvent.MOUSE_DOWN, function drag(e:MouseEvent):void {
 				startDrag();
 			});
 			
@@ -111,10 +114,8 @@
 			
 			// grabber buttons
 			closeButton = addGrabberButton("resources/swf/cross_icon.swf");
-			//minimizeButton = addGrabberButton("resources/swf/minimize_icon.swf");
-			circleButton = addGrabberButton("resources/swf/invisible_icon.swf");
-			//addGrabberButton("resources/swf/more_icon.swf");
-			//moreButton = addGrabberButton("resources/swf/test_icon.swf");
+			if(config.minimizeMode) minimizeButton = addGrabberButton("resources/swf/minimize_icon.swf");
+			if(config.circleMode) circleButton = addGrabberButton("resources/swf/invisible_icon.swf");
 			
 			resizer = new Image("resources/swf/arrow_icon.swf", function() {
 			},true);
@@ -153,6 +154,7 @@
 			scrollContent.displayWidth = bg.width-8;
 			scrollContent.displayHeight = bg.height - grabber.height-10;
 			
+			
 			format = new TextFormat(config.titleFont, 12, config.titleColor, false); //blue: 0x4a55ff
 			title_tf = new TextField();
 			title_tf.text = "New Box";
@@ -162,17 +164,17 @@
 			addChild(title_tf);
 			title_tf.x = bg.width - title_tf.width - 15;
 			title_tf.y = grabber.height / 2 - title_tf.height / 2;
+			if (!config.title) title_tf.visible = false;
+			
 			
 			// mouse wheel
 			addEventListener(MouseEvent.MOUSE_WHEEL, function wheel(e:MouseEvent) {
 				scroller_y.scrollerY -= e.delta*config.scrollAmount;
 			});
 			
-			/**
-			 * @temp Unbestimmt, ob benötigt
-			 */
 			// button clicks
-			/*minimizeButton.addEventListener(MouseEvent.CLICK, function() {
+			if(minimizeButton){
+			minimizeButton.addEventListener(MouseEvent.CLICK, function() {
 				if (!circleMode) {
 				bg.visible = closed;
 				content.visible = closed;
@@ -180,7 +182,8 @@
 				scroller_x.visible = closed;
 				closed = !closed;
 				}
-			});*/
+			});
+			}
 			
 			/**
 			 * @todo restliche listeners mit anonymen funktionen entfernen.
@@ -189,26 +192,21 @@
 				if(hasEventListener(Event.ENTER_FRAME)) removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 				if(stage.hasEventListener(MouseEvent.MOUSE_DOWN)) stage.removeEventListener(MouseEvent.MOUSE_DOWN, stageMouseDown);
 				if (stage.hasEventListener(MouseEvent.MOUSE_UP)) stage.removeEventListener(MouseEvent.MOUSE_UP, stageMouseUp);
-				//grabber.removeEventListener(MouseEvent.MOUSE_DOWN, drag);
+				//grabber.removeEventListener(MouseEvent.MOUSE_DOWN,drag);
 				//colorCircle.removeEventListener(MouseEvent.MOUSE_DOWN, drag);
 				colorCircle.removeEventListener(MouseEvent.DOUBLE_CLICK, clickCircle);
 				//this.removeEventListener(MouseEvent.MOUSE_WHEEL, wheel);
-				circleButton.removeEventListener(MouseEvent.CLICK, clickCircle);
+				if(circleButton) circleButton.removeEventListener(MouseEvent.CLICK, clickCircle);
 				stage.removeEventListener(MouseEvent.MOUSE_UP, stageMouseUp);
 				//this.removeEventListener(MouseEvent.MOUSE_DOWN, thisMouseDown);
 				// xback
 				self.parent.removeChild(self);
 			});
 			
-			circleButton.addEventListener(MouseEvent.CLICK, clickCircle);
-			
-			/*moreButton.addEventListener(MouseEvent.CLICK, function() {
-				width = content.width + 15;
-				height = content.height + 15;
-			});*/
+			if(circleButton) circleButton.addEventListener(MouseEvent.CLICK, clickCircle);
 			
 			// dropshadow
-			this.filters = [new DropShadowFilter(0, 0, 0, 0.05, 10, 10, 1, 3)];
+			if(config.dropShadow) this.filters = [new DropShadowFilter(0, 0, 0, 0.05, 10, 10, 1, 3)];
 			
 			// display list
 			this.setChildIndex(scroller_x, numChildren - 1);
@@ -237,11 +235,11 @@
 			whiteSpace.graphics.drawRect(0, 0, 100, 25);
 			content.addChild(whiteSpace);
 			whiteSpace.y = contentHeight;
-			contentHeight += whiteSpace.height + elementGap;
+			contentHeight += whiteSpace.height + config.elementGap;
 		}
 		private function removeWhiteSpace():void {
 			if (whiteSpace && content.contains(whiteSpace)) {
-				contentHeight -= whiteSpace.height + elementGap;
+				contentHeight -= whiteSpace.height + config.elementGap;
 				content.removeChild(whiteSpace);
 			}
 		}
@@ -342,6 +340,26 @@
 				}
 			}
 			
+			// content mode
+			checkContentMode();
+		}
+		private function checkContentMode():void {
+			if (config.contentMode == BoxConfig.CONTENT_FILL) {
+				for ( var i:uint = 0; i < content.numChildren; i++) {
+					var elem:DisplayObject = content.getChildAt(i);
+					elem.width = scrollContent.displayWidth - 15;
+				}
+			}
+			else if ( config.contentMode == BoxConfig.CONTENT_SINGLE ) {
+				if(contentElements == 1){
+					for ( var j:uint = 0; j < content.numChildren; j++) {
+						var elem2:DisplayObject = content.getChildAt(j);
+						elem2.width = scrollContent.displayWidth - 15;
+						elem2.height = scrollContent.displayHeight - 15;
+					}
+				}
+				else throw new Error("Bei CONTENT_SINGLE ist nur ein Element erlaubt. Sonst CONTENT_FIX oder CONTENT_FILL verwenden.");
+			}
 		}
 		private function stageMouseDown(e:MouseEvent):void {
 			var s:Point = new Point(stage.mouseX, stage.mouseY);
@@ -392,7 +410,7 @@
 					xpos += b.width;
 				}
 				// align colorCircle
-				placeColorCirlce();
+				if(config.circleMode) placeColorCirlce();
 			},true, new Rect(25,grabber.height,0xff00aa));
 			but.buttonMode = true;
 			grabber.addButton(but);
@@ -419,7 +437,7 @@
 			tb.x = 10;
 			tb.y = contentHeight+1;
 			contentElements ++;
-			contentHeight += tb.height + elementGap;
+			contentHeight += tb.height + config.elementGap;
 			addWhiteSpace();
 			return tb;
 		}
@@ -430,7 +448,7 @@
 			tg.x = 10;
 			tg.y = contentHeight+1;
 			contentElements ++;
-			contentHeight += tg.height + elementGap;
+			contentHeight += tg.height + config.elementGap;
 			addWhiteSpace();
 			return tg;
 		}
@@ -442,7 +460,7 @@
 			s.y = contentHeight+1;
 			//s.width = this.width - 20;
 			contentElements ++;
-			contentHeight += s.height + elementGap;
+			contentHeight += s.height + config.elementGap;
 			addWhiteSpace();
 			return s;
 		}
@@ -453,7 +471,7 @@
 			sp.x = 10;
 			sp.y = contentHeight+1;
 			contentElements++;
-			contentHeight += sp.height + elementGap;
+			contentHeight += sp.height + config.elementGap;
 			addWhiteSpace();
 			return sp;
 		}
@@ -463,7 +481,7 @@
 			elem.x = 10;
 			elem.y = contentHeight + 1;
 			contentElements++;
-			contentHeight += elem.height + elementGap;
+			contentHeight += elem.height + config.elementGap;
 			addWhiteSpace();
 			return elem;
 		}
@@ -493,7 +511,7 @@
 				opacity3 = 1;
 				dropshadow = new DropShadowFilter(0, 0, 0, 0.05, 18, 18, 2.5, 3);
 				color = this.color; //0x555555
-				addEventListener(Event.ENTER_FRAME, onEnterFrame);
+				if(config.resizeMode) addEventListener(Event.ENTER_FRAME, onEnterFrame);
 				stage.addEventListener(MouseEvent.MOUSE_DOWN, stageMouseDown);
 				stage.addEventListener(MouseEvent.MOUSE_UP, stageMouseUp);
 			}
@@ -510,7 +528,7 @@
 			for (var i:uint = 0; i < grabber.buttons.length; i++) {
 				grabber.buttons[i].alpha = opacity;
 			}
-			this.filters = [dropshadow];
+			if(config.dropShadow) this.filters = [dropshadow];
 			scroller_x.alpha = opacity3;
 			scroller_y.alpha = opacity3;
 		}

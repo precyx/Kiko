@@ -28,7 +28,7 @@
 		
 		private function toStage(e:Event):void {
 			removeEventListener(Event.ADDED_TO_STAGE, toStage);
-			var numBoxes:uint = 5;
+			var numBoxes:uint = 1;
 			for (var i:uint = 0; i < numBoxes; i++) {
 				var a:Box = createBox();
 				a.active = false;
@@ -51,10 +51,11 @@
 		}
 
 		private function createBox():Box {
+
 			
-			var config:BoxConfig = new BoxConfig();
-			
-			var box:Box = new Box();
+			var config:BoxConfig = new BoxConfig( );
+			config.contentMode = BoxConfig.CONTENT_SINGLE;
+			var box:Box = new Box(config);
 			addChild(box);
 			box.x = Math.random()* 500;
 			box.y = Math.random() * 500;
@@ -71,11 +72,11 @@
 			
 			
 			if ( 1 ) {
-			makeFor( 10, function() { 
+			makeFor( 1, function() { 
 				var s:Sprite = new Sprite();
-				s.graphics.beginFill(Math.random() * 0xffffff);
-				s.graphics.drawRect(0, 0, Math.random() * 150, 30);
-				box.addContent( s);
+				s.graphics.beginFill(0x3FDCF8);
+				s.graphics.drawRect(0, 0, Math.random() * 150, 5);
+				box.addContent(s);
 			} );
 			}
 			
@@ -84,7 +85,7 @@
 			 */
 			if( 0 ){
 			box.addTextButton("Create Box").addEventListener(MouseEvent.CLICK, function() {
-				createBox();
+				createBox().active = true;
 			});
 			box.addTextButton("Change Color", 0x4BCA00).addEventListener(MouseEvent.CLICK, function() {
 				box.color = Math.random() * 0xffffff;
@@ -139,7 +140,7 @@
 			box.addTextButton("Standard Button", 0x656565).height = 40;
 			}
 			
-			if ( 1 ) {
+			if ( 0 ) {
 				box.addStepper("Stepper", -9999, 99999, 100, 58);
 			}
 			

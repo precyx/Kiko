@@ -24,8 +24,11 @@ package com.kiko.ui.buttons
 		// data
 		private var btnwidth:Number;
 		private var btnheight:Number;
+		//
+		public var textColor:uint;
 		public var borderColor:uint;
-		public var _hoverAlpha:Number = 0;
+		public var hoverColor:uint;
+		public var bgColor:uint;
 		
 		//
 		// graphics
@@ -38,10 +41,13 @@ package com.kiko.ui.buttons
 		{
 			this.btnwidth = width;
 			this.btnheight = height;
+			this.textColor = textColor;
 			this.borderColor = borderColor;
+			this.hoverColor = hoverColor;
+			this.bgColor = 0xFFFFFF;
 			
 			bg = new Sprite();
-			drawBg(borderColor, 0xffffff);
+			drawBg();
 			addChild(bg);
 			
 			var format:TextFormat = new TextFormat("Arial", 12, textColor);
@@ -67,7 +73,8 @@ package com.kiko.ui.buttons
 				drawBg(hoverColor, hoverColor, _hoverAlpha);
 			} } );
 			tf.textColor = 0xffffff;*/
-			drawBg(hoverColor, hoverColor);
+			bgColor = hoverColor;
+			drawBg();
 			tf.textColor = 0xffffff;
 			});
 			hit.addEventListener(MouseEvent.MOUSE_OUT, function(e:MouseEvent) {
@@ -77,16 +84,16 @@ package com.kiko.ui.buttons
 					drawBg(hoverColor, hoverColor, _hoverAlpha);
 				} } );
 				tf.textColor = textColor;*/
-				_hoverAlpha = 0;
-				drawBg(borderColor, 0xffffff);
+				bgColor = 0xFFFFFF;
+				drawBg();
 				tf.textColor = textColor;
 			});
 		}
 		// privates
-		private function drawBg(lineColor:uint, fillColor:uint = 0xffffff, fillAlpha:Number = 1) {
+		private function drawBg() {
 			bg.graphics.clear();
 			bg.graphics.lineStyle(1, borderColor, 1, true, LineScaleMode.NONE );
-			bg.graphics.beginFill(fillColor, fillAlpha);
+			bg.graphics.beginFill(bgColor, 1);
 			bg.graphics.drawRoundRect(0, 0, btnwidth, btnheight, 4, 4);
 		}
 		
@@ -97,16 +104,13 @@ package com.kiko.ui.buttons
 		}
 		override public function set width (value:Number) : void {
 			if (value < tf.x + tf.width) value = tf.x*2 + tf.width;
-			bg.graphics.clear();
 			btnwidth = value;
-			bg.graphics.lineStyle(1, borderColor, 1, true, LineScaleMode.NONE );
-			bg.graphics.beginFill(0xffffff);
-			drawBg(borderColor, 0xffffff);
+			drawBg();
 			hit.width = value;
 		}
 		override public function set height(value:Number):void {
 			btnheight = value;
-			drawBg(borderColor);
+			drawBg();
 			tf.y = bg.height / 2 - tf.height / 2;
 			hit.height = bg.height;
 		}
