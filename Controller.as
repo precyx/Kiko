@@ -1,39 +1,76 @@
-package
+﻿package
 {
 	// adobe
-	import com.curve.CurveController;
-	import com.kiko.ui.UiController;
 	import flash.display.Sprite
-	import flash.events.StatusEvent;
-	import flash.ui.Keyboard;
-	import flash.events.EventDispatcher;
-	import flash.display.MovieClip;
-	import net.hires.debug.Stats;
 	//
 	// own
+	import com.kiko.display.*;
+	import com.kiko.text.*;
 	//
-	/*
-	 * Controller - Version 1.1
-	 * MainController
-	 */
 	public class Controller extends Sprite
 	{
-		// controllers
-		public var curveController:CurveController;
-		public var uiController:UiController;
 		//
 		//
-		public function Controller():void {
-			
-			// Module aktivieren
-			addChild(View.init());
-			Keys.init();
-			addChild(new Stats());
-			
-			// Controllers
-			curveController = new CurveController(this);
-			uiController = new UiController(this);
+		//
+		public function Controller():void{
+			createRectTest();
+			createToggleButtonTest();
+		}
+		// done
+		private function createRectTest():void {
+			var rect:Rect = new Rect(100, 100, 0xff00aa);
+			addChild(rect);
+			rect.x = 200;
+			rect.y = 200;
+			trace("");
+		}
+		// todo
+		private function createCustomTextfield():void{
+			var tf:CustomTextField = new CustomTextField();
+			addChild(tf);
+			tf.text = "test text";
+			tf.appendText("more text");
+		}
+		// todo
+		private function createToggleButtonTest():void{
+			var tb:ToggleButton = new ToggleButton("Name");
+			addChild(tb);
+			// functions
+			tb.toggle();
+			tb.toggleOn();
+			tb.toggleOff();
+			// events
+			tb.addEventListener(MouseEvent.TOGGLE_OFF, onToggleOf);
+			tb.addEventListener(MouseEvent.TOGGLE_ON, onToggleOn);
+			// gettters setters
+			tb.text = "New Name";
+			tb.width = 100;
+			tb.height = 50;
+			if(tb.on){}
+			if(tb.off){}
+		}
+		// todo
+		private static function Math2():void{
+			function radToDeg(rad:Number):Number{
+				return rad*180/Math.PI;
+			}
+			function degToRad(deg:Number):Number{
+				return deg/180*Math.PI;
+			}
+			function random(min:Number = 0, max:Number = 1):Number{
+				return Math.random()*(min + max) -max;
+			}
+		}
+		// todo
+		private function keyboardKeys() {
 			
 		}
+		// todo
+		private function selfRemovingEventListeners() {
+			
+		}
+		
+	
+		
 	}//end-class
 }//end-pack
