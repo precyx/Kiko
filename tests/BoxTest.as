@@ -54,7 +54,7 @@
 
 			
 			var config:BoxConfig = new BoxConfig( );
-			config.contentMode = BoxConfig.CONTENT_SINGLE;
+			config.contentMode = BoxConfig.CONTENT_FILL;
 			var box:Box = new Box(config);
 			addChild(box);
 			box.x = Math.random()* 500;
@@ -83,7 +83,7 @@
 			/** 
 			 * TextButtons mit mehrerern Farben.
 			 */
-			if( 0 ){
+			if( 1 ){
 			box.addTextButton("Create Box").addEventListener(MouseEvent.CLICK, function() {
 				createBox().active = true;
 			});
