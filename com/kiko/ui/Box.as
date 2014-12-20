@@ -554,7 +554,7 @@
 			 */
 			value = Math.max(config.minWidth, value);
 			bg.width = value;
-			grabber.width = bg.width;
+			grabber.width = value;
 			title_tf.x = value - title_tf.width - 15;
 			scrollContent.displayWidth = value - 8;
 			scroller_x.scrollBackgroundWidth = value;

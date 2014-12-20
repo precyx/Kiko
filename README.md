@@ -1,3 +1,0 @@
-Kiko
-====
-Kiko Library
